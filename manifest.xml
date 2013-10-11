@@ -1,0 +1,20 @@
+<package>
+  <description brief="coordinate_transform">
+
+     coordinate_transform
+
+  </description>
+  <author>penghou</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/coordinate_transform</url>
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+  <depend package="opencv2"/>
+  <depend package="cv_bridge"/>
+  <depend package="uvc_camera"/>
+  <depend package="sensor_msgs"/>
+
+</package>
+
+
