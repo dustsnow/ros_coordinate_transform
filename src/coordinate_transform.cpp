@@ -10,16 +10,18 @@
 #include <opencv2/imgproc/imgproc.hpp>
 //Include headers for OpenCV GUI handling
 #include <opencv2/highgui/highgui.hpp>
- 
+#include "geometry_msgs/Twist.h"
+#include "std_msgs/String.h"
+#include <sstream> 
+
 //Store all constants for image encodings in the enc namespace to be used later.
 namespace enc = sensor_msgs::image_encodings;
  
 //Declare a string with the name of the window that we will create using OpenCV where processed images will be displayed.
 static const char WINDOW[] = "Image Processed";
- 
 //Use method of ImageTransport to create image publisher
 image_transport::Publisher pub;
-
+ros::Publisher test;
 //giant red circle 
 int LowerH = 160;
 int LowerS = 52;
@@ -36,6 +38,7 @@ int HL_MinLineLength = 1;
 double lambda = 0.3;//meter
 
 void objectDetectionCallback(const sensor_msgs::ImageConstPtr& original_image){
+
 
 	cv_bridge::CvImagePtr cv_ptr;
 	try
@@ -73,7 +76,7 @@ void objectDetectionCallback(const sensor_msgs::ImageConstPtr& original_image){
 
     }
 
-
+	double x_i,y_i;
     for( size_t i = 0; i < circles.size(); i++ )
     {
         cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
@@ -84,12 +87,22 @@ void objectDetectionCallback(const sensor_msgs::ImageConstPtr& original_image){
         circle( cv_ptr->image, center, radius, cv::Scalar(0,255,0), 3, 8, 0 );
 
 		for(int i = 0; i < circles.size(); i++){
-			double x_i = (lambda*circles[i][0] - 319.5*lambda)/625.5735;
-			double y_i = (lambda*circles[i][1] - 239.5*lambda)/625.5735;
+			x_i = (lambda*circles[i][0] - 319.5*lambda)/625.5735;
+			y_i = (lambda*circles[i][1] - 239.5*lambda)/625.5735;
 			ROS_INFO("Xi: %f\tYi: %f",x_i,y_i);
 		}
 
     }
+
+	
+	geometry_msgs::Twist velocity;
+	velocity.linear.x = x_i;
+	velocity.linear.y = 0;
+	velocity.linear.z = 0;
+	velocity.angular.x = 0;
+	velocity.angular.y = 0;
+	velocity.angular.z = y_i;
+	test.publish(velocity);
 
     cv::imshow(WINDOW, img_mask);
 	cv::imshow("Processed", cv_ptr->image);
@@ -205,7 +218,8 @@ int main(int argc, char **argv)
     //Create an ImageTransport instance, initializing it with our NodeHandle.
     image_transport::ImageTransport it(nh);
 
-	ROS_INFO("Hello");
+	test = nh.advertise<geometry_msgs::Twist>("cmd_vel",1000);
+
 	cv::namedWindow("Ball");
 	cv::createTrackbar("LowerH","Ball",&LowerH,180,NULL);
 	cv::createTrackbar("UpperH","Ball",&UpperH,180,NULL);
