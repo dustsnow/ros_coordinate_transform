@@ -12,6 +12,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include "geometry_msgs/Twist.h"
 #include "std_msgs/String.h"
+#include "geometry_msgs/Point.h"
 #include <sstream> 
 
 //Store all constants for image encodings in the enc namespace to be used later.
@@ -94,15 +95,18 @@ void objectDetectionCallback(const sensor_msgs::ImageConstPtr& original_image){
 
     }
 
-	
-	geometry_msgs::Twist velocity;
-	velocity.linear.x = x_i;
-	velocity.linear.y = 0;
-	velocity.linear.z = 0;
-	velocity.angular.x = 0;
-	velocity.angular.y = 0;
-	velocity.angular.z = y_i;
-	test.publish(velocity);
+	geometry_msgs::Point position;
+	position.x = x_i;
+	position.y = y_i;
+	test.publish(position);
+//	geometry_msgs::Twist velocity;
+//	velocity.linear.x = x_i;
+//	velocity.linear.y = 0;
+//	velocity.linear.z = 0;
+//	velocity.angular.x = 0;
+//	velocity.angular.y = 0;
+//	velocity.angular.z = y_i;
+//	test.publish(velocity);
 
     cv::imshow(WINDOW, img_mask);
 	cv::imshow("Processed", cv_ptr->image);
@@ -218,7 +222,7 @@ int main(int argc, char **argv)
     //Create an ImageTransport instance, initializing it with our NodeHandle.
     image_transport::ImageTransport it(nh);
 
-	test = nh.advertise<geometry_msgs::Twist>("cmd_vel",1000);
+	test = nh.advertise<geometry_msgs::Point>("obj_pos",1000);
 
 	cv::namedWindow("Ball");
 	cv::createTrackbar("LowerH","Ball",&LowerH,180,NULL);
